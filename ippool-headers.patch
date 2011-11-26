@@ -1,0 +1,25 @@
+diff -dur ippool-1.3.orig/usl/usl_timer.c ippool-1.3/usl/usl_timer.c
+--- ippool-1.3.orig/usl/usl_timer.c	2008-02-03 15:55:30.000000000 +0100
++++ ippool-1.3/usl/usl_timer.c	2011-11-26 13:34:45.000000000 +0100
+@@ -42,6 +42,7 @@
+ #include <signal.h>
+ #include <string.h>
+ #include <sys/time.h>
++#include <limits.h>
+ 
+ #include "usl.h"
+ 
+--- ippool-1.3.orig/pppd/ippool.c	2004-09-12 23:04:50.000000000 +0200
++++ ippool-1.3/pppd/ippool.c	2011-11-26 13:39:26.000000000 +0100
+@@ -6,10 +6,7 @@
+ #include <stdlib.h>
+ #include <errno.h>
+ #include "pppd.h"
+-#include "pathnames.h"
+-#include "fsm.h" /* Needed for lcp.h to include cleanly */
+-#include "lcp.h"
+-#include "ccp.h"
++#include "fsm.h"
+ #include "ipcp.h"
+ #include <sys/stat.h>
+ #include <net/if.h>

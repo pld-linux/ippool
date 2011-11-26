@@ -1,0 +1,25 @@
+diff -dur ippool-1.3.orig/cli/Makefile ippool-1.3/cli/Makefile
+--- ippool-1.3.orig/cli/Makefile	2008-02-03 15:55:30.000000000 +0100
++++ ippool-1.3/cli/Makefile	2011-11-26 13:35:29.000000000 +0100
+@@ -7,7 +7,7 @@
+ 
+ LDFLAGS.cli_test=	-L.. -L. $(READLINE_LDFLAGS) -lcli -lusl -lreadline -lcurses -lc
+ 
+-CFLAGS=			$(CFLAGS.optimize) -MMD -Wall -Werror -I.. $(READLINE_CFLAGS)
++CFLAGS=			$(CFLAGS.optimize) -MMD -Wall -I.. $(READLINE_CFLAGS)
+ 
+ .PHONY:			all test clean
+ 
+diff -dur ippool-1.3.orig/usl/Makefile ippool-1.3/usl/Makefile
+--- ippool-1.3.orig/usl/Makefile	2008-02-24 12:52:50.000000000 +0100
++++ ippool-1.3/usl/Makefile	2011-11-26 13:35:38.000000000 +0100
+@@ -14,7 +14,7 @@
+ endif
+ 
+ CPPFLAGS+=		$(CFLAGS.optimize) -g
+-CFLAGS=			-I. -MMD -Wall -Werror $(CPPFLAGS) $(CPPFLAGS.dmalloc)
++CFLAGS=			-I. -MMD -Wall $(CPPFLAGS) $(CPPFLAGS.dmalloc)
+ 
+ .PHONY:			all test clean
+ 
+ 

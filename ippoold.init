@@ -1,0 +1,136 @@
+#!/bin/sh
+#
+# ippoold          Start/Stop the OpenL2TP protocol daemon.
+#
+# chkconfig: 2345 57 76
+# description: OpenL2TP is a complete implementation of RFC2661 - Layer Two Tunneling
+#	       Protocol Version 2, able to operate as both a server and a client.  It
+#              can be used to implement L2TP VPNs. As a server, it can handle
+#              hundreds of tunnels and sessions.
+# processname: ippoold
+# config: /etc/sysconfig/ippoold
+# pidfile: /var/run/ippoold.pid
+
+# Source function library.
+. /etc/init.d/functions
+
+IPPOOLDARGS=""
+IPPOOLD_CONFIG_FILE=""
+
+[ -f /etc/sysconfig/ippoold ] && . /etc/sysconfig/ippoold
+ 
+start() {
+	# Check if the service is already running?
+	if [ -f /var/lock/subsys/ippoold ]; then
+		msg_already_running "ippoold"
+		return
+	fi
+	
+	msg_starting "ippoold"
+	emit starting JOB=ippoold
+	
+	modprobe -s pppol2tp || modprobe -s l2tp_ppp
+	RETVAL=$?
+	if [ $RETVAL -eq 0 ]; then
+	    daemon ippoold $IPPOOLDARGS
+	    RETVAL=$?
+	fi
+	if [ $RETVAL -eq 0 ]; then
+	    touch /var/lock/subsys/ippoold
+	    emit started JOB=ippoold
+	    if [ -n "$IPPOOLD_CONFIG_FILE" -a -f "$IPPOOLD_CONFIG_FILE" ]; then
+		sleep 1
+		show "Restoring saved ippoold configuration..." ; busy
+		/usr/bin/ippoolconfig config restore file="$IPPOOLD_CONFIG_FILE"
+		RETVAL=$?
+		if [ $RETVAL -eq 0 ] ; then
+			ok
+		else
+			fail
+		fi
+	    fi
+	fi
+}
+
+stop() {
+	if [ ! -f /var/lock/subsys/ippoold ]; then
+		msg_not_running "ippoold"
+		return
+	fi
+	msg_stopping "ippoold"
+	killproc ippoold
+	emit --no-wait stopped JOB=ippoold
+	rm -f /var/run/ippoold.pid /var/lock/subsys/ippoold >/dev/null 2>&1
+	return 0
+}	
+
+condrestart() {
+	if [ ! -f /var/lock/subsys/ippoold ]; then
+		msg_not_running "ippoold"
+		RETVAL=$1
+		return
+	fi
+
+  	stop
+	start
+}	
+
+restart() {
+  	stop
+	start
+}	
+
+reload() {
+	if [ ! -f /var/lock/subsys/ippoold ]; then
+		msg_not_running "ippoold"
+		RETVAL=7
+		return
+	fi
+
+	if [ -n "$IPPOOLD_CONFIG_FILE" -a -f "$IPPOOLD_CONFIG_FILE" ]; then
+		msg_reloading "ippoold"
+		/usr/bin/ippoolconfig config restore file="$IPPOOLD_CONFIG_FILE"
+		RETVAL=$?
+		if [ $RETVAL -eq 0 ] ; then
+			ok
+		else
+			fail
+		fi
+	else
+		stop
+		start
+	fi
+}	
+
+RETVAL=0
+# See how we were called.
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart)
+  	restart
+	;;
+  try-restart)
+	condrestart 0
+	;;
+  reload|force-reload)
+  	reload
+	;;
+  status)
+  	status ippoold
+	RETVAL=$?
+	;;
+  condrestart)
+	condrestart
+	;;
+  *)
+	msg_usage "$0 {start|stop|restart|try-restart|reload|force-reload|status}"
+	exit 3
+esac
+
+exit $RETVAL
+
