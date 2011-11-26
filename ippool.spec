@@ -36,7 +36,8 @@ which allows pppd to request IP addresses from ippoold.
 
 %build
 %{__make} -j1 \
-	CFLAGS.optimize="%{rpmcflags}"
+	SYS_LIBDIR="%{_libdir}" \
+	CFLAGS.optimize="%{rpmcflags} -fPIC"
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -44,6 +45,7 @@ install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,/etc/sysconfig,%{_libdir}/pppd/plugi
 
 %{__make} -j1 install \
 	DESTDIR=$RPM_BUILD_ROOT \
+	SYS_LIBDIR="%{_libdir}" \
 	PPPD_LIBDIR=%{_libdir}/pppd/plugins
 
 install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/ippoold
