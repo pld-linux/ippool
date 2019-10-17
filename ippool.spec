@@ -2,7 +2,7 @@
 Summary:	An IP address pool manager
 Name:		ippool
 Version:	1.3
-Release:	3
+Release:	4
 License:	GPL
 Group:		Networking/Daemons
 Source0:	http://downloads.sourceforge.net/openl2tp/%{name}-%{version}.tar.gz
