@@ -1,0 +1,39 @@
+--- ippool-1.3/ippool_api.c.orig	2020-08-30 22:11:47.358711538 +0200
++++ ippool-1.3/ippool_api.c	2020-08-30 22:11:51.015358395 +0200
+@@ -24,6 +24,7 @@
+  */
+ 
+ #include <net/ethernet.h>
++#include <netinet/in.h>
+ 
+ #include "usl.h"
+ 
+@@ -181,10 +182,12 @@
+ 	 * non-loopback interface, reject the request.
+ 	 */
+ 	if ((!ippool_opt_remote_rpc) &&
+-	    ((xprt->xp_raddr.sin_addr.s_addr != htonl(INADDR_LOOPBACK)) &&
+-	     (xprt->xp_raddr.sin_addr.s_addr != htonl(INADDR_ANY)))) {
++	    memcmp(&xprt->xp_raddr.sin6_addr.s6_addr, &in6addr_loopback, 16) &&
++	    memcmp(&xprt->xp_raddr.sin6_addr.s6_addr, &in6addr_any, 16)) {
+ 		if (ippool_opt_debug) {
+-			ippool_log(LOG_ERR, "Rejecting RPC request from %s", inet_ntoa(xprt->xp_raddr.sin_addr));
++			char straddr[INET6_ADDRSTRLEN];
++			inet_ntop(AF_INET6, &xprt->xp_raddr.sin6_addr, straddr, sizeof(straddr));
++			ippool_log(LOG_ERR, "Rejecting RPC request from %s", straddr);
+ 		}
+ 		svcerr_auth(xprt, AUTH_TOOWEAK);
+ 		return -EPERM;
+--- ippool-1.3/Makefile.orig	2008-02-24 17:22:25.000000000 +0100
++++ ippool-1.3/Makefile	2020-08-30 22:20:33.769193061 +0200
+@@ -83,8 +83,8 @@
+ 
+ CPPFLAGS=		$(CPPFLAGS.ippooltest)
+ CFLAGS=			-I. -Iusl -Icli -MMD -Wall -g $(CPPFLAGS) $(CPPFLAGS.dmalloc)
+-LDFLAGS.ippoold=	-Wl,-E -L. -Lusl -lusl -lnsl -ldl $(LIBS.dmalloc) -lc
+-LDFLAGS.ippoolconfig=	-Lcli -lcli -lreadline -lcurses -lnsl $(LIBS.dmalloc) -lc
++LDFLAGS.ippoold=	-Wl,-E -L. -Lusl -lusl -ltirpc -ldl $(LIBS.dmalloc) -lc
++LDFLAGS.ippoolconfig=	-Lcli -lcli -lreadline -lcurses -ltirpc $(LIBS.dmalloc) -lc
+ 
+ OPT_CFLAGS?=		-O
+ 

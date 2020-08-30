@@ -1,0 +1,11 @@
+--- ippool-1.3/pppd/Makefile.orig	2008-02-03 16:46:58.000000000 +0100
++++ ippool-1.3/pppd/Makefile	2020-08-30 21:58:33.799677283 +0200
+@@ -10,7 +10,7 @@
+ 
+ # END CONFIGURABLE SETTINGS
+ 
+-CFLAGS	+= -g -I.. -I/usr/include/pppd $(CFLAGS.pppd) -fPIC
++CFLAGS	+= $(CFLAGS.optimize) -I.. -I/usr/include/pppd $(CFLAGS.pppd) -fPIC
+ LDFLAGS	+= -shared
+ 
+ all:	ippool.so
